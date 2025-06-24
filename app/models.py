@@ -26,7 +26,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     keywords = Column(ARRAY(String))  # or normalize this into a separate Keyword table later
     created_at = Column(DateTime, default=datetime.now)
-
+    
 
 engine = create_engine(DATABASE_URL)
 
