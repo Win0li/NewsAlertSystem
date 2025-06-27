@@ -1,15 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, create_engine, ForeignKey
-from sqlalchemy.orm import declarative_base, sessionmaker
+from .database import Base
+from sqlalchemy import Column, Integer, String, DateTime, ARRAY
 from datetime import datetime
-import os
-from dotenv import load_dotenv
-
-
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-Base = declarative_base()
 
 class Article(Base):
     __tablename__ = "articles"
@@ -27,7 +18,3 @@ class User(Base):
     keywords = Column(ARRAY(String))  # or normalize this into a separate Keyword table later
     created_at = Column(DateTime, default=datetime.now)
     
-
-engine = create_engine(DATABASE_URL)
-
-SessionLocal = sessionmaker(bind = engine)
