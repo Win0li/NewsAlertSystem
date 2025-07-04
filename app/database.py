@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+KEYWORDS = ["OpenAI", "China", "Stock Market", "SpaceX", "Trump"]
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:

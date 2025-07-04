@@ -1,12 +1,12 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 import asyncio 
-from .api_clients.bing_api import fetch_news
-from .models import SessionLocal, Article, User
+from .api_clients.news_api import fetch_news
+from .models import Article, User
 from datetime import datetime
 from app.utils.alerts import send_email_alert
+from .database import SessionLocal, KEYWORDS
 import collections
 
-KEYWORDS = ["OpenAI", "China", "Stock Market", "SpaceX", "Trump"]
 
 
 
@@ -18,7 +18,8 @@ def run_job():
     3. Identify users interested in those keywords
     4. Send each user a single email summarizing relevant new articles
     """
-
+    print(f"[{datetime.now().isoformat()}] 🔄 run_job() started")
+    
     # Create a fresh asyncio event loop for this background thread
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -72,9 +73,12 @@ def run_job():
             body += "</ul>"
 
             asyncio.create_task(send_email_alert(email, "Your NewsDrop update", body))
+        
+        print(f"[{datetime.now().isoformat()}] ✅ run_job() completed successfully")
     
     except Exception as e:
         print("Error in run_job:", e)
+        print(f"[{datetime.now().isoformat()}] ❌ Error in run_job: {e}")
 
     finally:
         db.close()
@@ -86,9 +90,9 @@ scheduler = BackgroundScheduler()
 def start_scheduler():
     """
     Starts the background scheduler to run the job every 5 minutes.
-    Should be called once on FastAPI app startup.
     """
     scheduler.add_job(run_job, 'interval', minutes=5)
     scheduler.start()
+    run_job()
 
 
