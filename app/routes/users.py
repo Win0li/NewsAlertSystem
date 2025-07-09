@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.post("/create_user")
-def create_user(email:str):
+def create_user(email:EmailStr):
     db: Session = SessionLocal()
     try:
         existing = db.query(User).filter_by(email=email).first()
@@ -24,7 +24,7 @@ def create_user(email:str):
         db.close()
 
 @router.delete("/delete_user/{email}")
-def delete_user(email: str):
+def delete_user(email: EmailStr):
     db: Session = SessionLocal()
     try:
         user = db.query(User).filter_by(email=email).first()

@@ -8,6 +8,7 @@ class Article(Base):
     title = Column(String)
     url = Column(String, unique=True)
     published_at = Column(DateTime)
+    source = Column(String)   
     keyword = Column(String)
     inserted_at = Column(DateTime, default=datetime.now)
 

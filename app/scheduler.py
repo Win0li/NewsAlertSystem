@@ -30,19 +30,25 @@ def run_job():
     keyword_to_articles = collections.defaultdict(list)
 
     # Map user email → list of articles to send
-    user_alerts = {}
+    user_alerts = collections.defaultdict(list)
 
 
     try:
+        seen_urls = set()
         for keyword in KEYWORDS:
             # Fetch latest news articles for this keyword
             articles = loop.run_until_complete(fetch_news(keyword))
             for article in articles:
+                # Skip if article already exists in the current staging process
+                if article["url"] in seen_urls:
+                    continue
                 # Skip if article already exists in the DB
                 existing = db.query(Article).filter_by(url=article["url"]).first()
                 if existing:
                     continue
                 
+                seen_urls.add(article["url"])
+
                 # Store in keyword dictionary
                 keyword_to_articles[keyword].append(article)
 
@@ -51,28 +57,32 @@ def run_job():
                     title=article["name"],
                     url=article["url"],
                     published_at=datetime.fromisoformat(article["datePublished"].rstrip("Z")),
-                    source=article.get("provider", [{}])[0].get("name", "Unknown"),
+                    source=article.get("source", "Unknown"),
                     keyword=keyword)
 
                 db.add(new_article)
-
+            # Persist all new articles
+            print("breakpoint 1")
             # Identify users subscribed to this keyword
             matching_users = db.query(User).filter(User.keywords.any(keyword)).all()
+            print("breakpoint 2")
             for user in matching_users:
                 # Extend user's article list with all new articles for this keyword
                 user_alerts[user.email].extend(keyword_to_articles[keyword])
-        
-        # Persist all new articles
+            print("breakpoint 3")
         db.commit()
-
+       
+        print("breakpoint 4")
+       
         # Send one email per user summarizing new articles
         for email, articles in user_alerts.items():
             body = "<h3>New Articles:</h3><ul>"
             for a in articles:
                 body += f"<li><a href='{a['url']}'>{a['name']}</a></li>"
             body += "</ul>"
-
-            asyncio.create_task(send_email_alert(email, "Your NewsDrop update", body))
+            
+            print("breakpoint 5")
+            # asyncio.create_task(send_email_alert(email, "Your NewsDrop update", body))
         
         print(f"[{datetime.now().isoformat()}] ✅ run_job() completed successfully")
     

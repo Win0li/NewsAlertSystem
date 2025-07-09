@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from .scheduler import start_scheduler, scheduler
 from .routes import users
+from .utils import alerts
 
 
 
@@ -12,6 +13,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan= lifespan)
 app.include_router(users.router)
+app.include_router(alerts.router)
 
 @app.get("/")
 def read_root():

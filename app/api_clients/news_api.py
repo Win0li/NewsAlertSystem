@@ -31,7 +31,7 @@ async def fetch_news(keyword: str):
             "name": article["title"],
             "url": article["url"],
             "datePublished": article["publishedAt"],
-            "provider": [{"name": article["source"]["name"]}],
+            "source": article["source"]["name"] or "Unknown",
         })
 
     return articles

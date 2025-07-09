@@ -1,11 +1,18 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
-import os
+from pydantic import BaseModel, EmailStr
+import os, requests
 from dotenv import load_dotenv
+from fastapi import APIRouter
 # import requests
 
+router = APIRouter()
 load_dotenv()
 
 
+class EmailRequest(BaseModel):
+    to: EmailStr
+    subject: str
+    body: str
 
 
 conf = ConnectionConfig(
@@ -30,16 +37,24 @@ async def send_email_alert(to_email, subject, body):
     )
     fm = FastMail(conf)
     await fm.send_message(message)
+    return 
 
 
 
-# Currently not in use
 
-# def send_simple_message():
-#   	return requests.post(
-#   		"https://api.mailgun.net/v3/sandbox8299ba1fd7794f909d6be254b32969ea.mailgun.org/messages",
-#   		auth=("api", os.getenv('API_KEY', 'API_KEY')),
-#   		data={"from": "Mailgun Sandbox <postmaster@sandbox8299ba1fd7794f909d6be254b32969ea.mailgun.org>",
-# 			"to": "Winston Li <randston2020@gmail.com>",
-#   			"subject": "Hello Winston Li",
-#   			"text": "Congratulations Winston Li, you just sent an email with Mailgun! You are truly awesome!"})
+@router.post("/send_email")
+def send_simple_message(request: EmailRequest):
+    response = requests.post(
+        "https://api.mailgun.net/v3/sandbox8299ba1fd7794f909d6be254b32969ea.mailgun.org/messages",
+        auth=("api", os.getenv('MAIL_API_KEY', 'MAIL_API_KEY')), 
+        data={
+            "from": "Mailgun Sandbox <postmaster@sandbox8299ba1fd7794f909d6be254b32969ea.mailgun.org>",
+            "to": request.to,
+            "subject": request.subject,
+            "text": request.body
+        }
+    )
+    return {
+        "status": response.status_code,
+        "message": response.text
+    }
