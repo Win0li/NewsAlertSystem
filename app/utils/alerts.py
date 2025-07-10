@@ -37,10 +37,9 @@ async def send_email_alert(to_email, subject, body):
     )
     fm = FastMail(conf)
     await fm.send_message(message)
-    return 
 
 
-
+# testing requests
 
 @router.post("/send_email")
 def send_simple_message(request: EmailRequest):

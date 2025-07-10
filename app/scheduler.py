@@ -75,14 +75,11 @@ def run_job():
         print("breakpoint 4")
        
         # Send one email per user summarizing new articles
+        
         for email, articles in user_alerts.items():
-            body = "<h3>New Articles:</h3><ul>"
-            for a in articles:
-                body += f"<li><a href='{a['url']}'>{a['name']}</a></li>"
-            body += "</ul>"
-            
-            print("breakpoint 5")
-            # asyncio.create_task(send_email_alert(email, "Your NewsDrop update", body))
+            body = generate_email_body(articles)
+            loop.run_until_complete(send_email_alert(email, "NewsDrop Update", body))
+
         
         print(f"[{datetime.now().isoformat()}] ✅ run_job() completed successfully")
     
@@ -93,9 +90,17 @@ def run_job():
     finally:
         db.close()
 
-        
+
+def generate_email_body(articles):
+    body = "<h3>New Articles:</h3><ul>"
+    for a in articles:
+        body += f"<li><a href='{a['url']}'>{a['name']}</a></li>"
+    body += "</ul>"
+    return body
+
 # Background scheduler instance used to run polling job periodically
 scheduler = BackgroundScheduler()
+
 
 def start_scheduler():
     """
@@ -104,5 +109,4 @@ def start_scheduler():
     scheduler.add_job(run_job, 'interval', minutes=5)
     scheduler.start()
     run_job()
-
 
