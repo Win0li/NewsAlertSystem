@@ -15,7 +15,7 @@ async def fetch_news(keyword: str):
     params = {
         "q": keyword,
         "sortBy": "publishedAt",
-        "language: en"
+        "language": "en",
         "pageSize": 10  # limit articles per request
     }
 
