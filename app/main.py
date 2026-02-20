@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from .scheduler import start_scheduler, scheduler
+from .scheduler import start_scheduler, stop_scheduler, scheduler
 from .routes import users
 from .utils import alerts
 
@@ -23,6 +23,7 @@ def read_root():
 def start_scheduler_endpoint():
     try:
         start_scheduler()
+        print(scheduler.get_jobs())
         return {"status": "Scheduler started"}
     except Exception as e:
         print(f"Exception during lifespan: {e}")
@@ -32,8 +33,9 @@ def start_scheduler_endpoint():
 @app.post("/stop-scheduler")
 def stop_scheduler_endpoint():
     try:
-        scheduler.shutdown()
+        stop_scheduler()
         return {"status": "Scheduler stopped"}
     except Exception as e:
         return {"error": str(e)}
-    
+
+
