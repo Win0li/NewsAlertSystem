@@ -1,6 +1,6 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from pydantic import BaseModel, EmailStr
-import os, requests
+import os, httpx
 from dotenv import load_dotenv
 from fastapi import APIRouter
 # import requests
@@ -43,7 +43,7 @@ async def send_email_alert(to_email, subject, body):
 
 @router.post("/send_email")
 def send_simple_message(request: EmailRequest):
-    response = requests.post(
+    response = httpx.post(
         "https://api.mailgun.net/v3/sandbox8299ba1fd7794f909d6be254b32969ea.mailgun.org/messages",
         auth=("api", os.getenv('MAIL_API_KEY', 'MAIL_API_KEY')), 
         data={

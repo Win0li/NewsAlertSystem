@@ -17,7 +17,7 @@ from .utils.alerts import send_email_alert
 from .ingestors.truthsocialrss import poll_once as poll_truth_once
 
 
-# --------- Scheduler (single instance) ----------
+# --------- Scheduler (single instance) ---------- 
 scheduler = BackgroundScheduler()
 _NEWS_JOB_ID = "newsapi_poll"
 _TRUTH_JOB_ID = "truth_rss_poll"
@@ -172,6 +172,7 @@ def run_truth_rss_job():
                     _truth_seen_links.add(link)
             _truth_primed = True
             print(f"[{datetime.now().isoformat()}] run_truth_rss_job() primed ({len(_truth_seen_links)} seen)")
+            print(_truth_seen_links)
             return
 
         new_items = []
@@ -229,7 +230,7 @@ def start_scheduler():
         scheduler.add_job(
             run_truth_rss_job,
             "interval",
-            seconds=15,
+            seconds=30,
             id=_TRUTH_JOB_ID,
             replace_existing=True,
             max_instances=1,
